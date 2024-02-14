@@ -1,6 +1,6 @@
 import express, { urlencoded } from "express";
 import bodyParser from "body-parser";
-import UserData from "./MOCK_DATA.json" assert { type: "json" };
+import UserData from "./src/json/MOCK_DATA.json" assert { type: "json" };
 import fs from "fs";
 
 const app = express();
