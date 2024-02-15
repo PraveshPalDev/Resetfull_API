@@ -1,51 +1,36 @@
-import express, { urlencoded } from "express";
-import bodyParser from "body-parser";
-import UserData from "./src/json/MOCK_DATA.json" assert { type: "json" };
-import fs from "fs";
+import express from "express";
+const router = express.Router();
 
-const app = express();
-const port = 4000;
+import UserData from "../json/MOCK_DATA.json" assert { type: "json" };
 
-app.use(urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-app.get("/", (req, res) => {
-  res.status(200).send("Welcome to server");
-});
-
-// this routes is only web
-app.get("/users", (req, res) => {
+// create a hybrid routes from web
+router.get("/", (req, res) => {
   const html = `
-      <ul>
-      ${UserData.map(
-        (item) => `<li>${item.first_name} ${item.last_name}</li>`
-      ).join("")}
-      </ul>
-      `;
+        <ul>
+        ${UserData.map(
+          (item) => `<li>${item.first_name} ${item.last_name}</li>`
+        ).join("")}
+        </ul>
+        `;
   return res.status(200).send(html);
 });
 
-// here all routes to only other client like mobile and other tools
-app.get("/api/users", (req, res) => {
-  return res.status(200).send(UserData);
-});
-
-// based on id send the user data using paramsID
-app.get("/api/users/:id", (req, res) => {
+// request to based on params id
+router.get("/:id", (req, res) => {
   const userId = req.params.id;
   const filterDataById = UserData.filter((user) => user.id == userId);
   return res.status(200).send(filterDataById);
 });
 
 // based on id send the user data using Query Parameters
-app.get("/api/user", (req, res) => {
+router.get("/params", (req, res) => {
   const id = req.query.id;
   const filterData = UserData.filter((x) => x.id == id);
   return res.status(200).send(filterData);
 });
 
 // based on created data in json file
-app.post("/api/users", (req, res) => {
+router.post("/created-user", (req, res) => {
   const data = req.body;
 
   UserData.push({ id: UserData.length + 1, ...data });
@@ -63,7 +48,7 @@ app.post("/api/users", (req, res) => {
 });
 
 // update the data based on id
-app.put("/api/users", (req, res) => {
+router.put("/update-user-details", (req, res) => {
   const data = req.body;
 
   // Find the user with the provided ID
@@ -84,7 +69,7 @@ app.put("/api/users", (req, res) => {
 });
 
 // replace the data based on id
-app.patch("/api/users", (req, res) => {
+router.patch("/replace-user-details", (req, res) => {
   const updatedUserData = req.body;
 
   const userIndex = UserData.findIndex(
@@ -107,7 +92,7 @@ app.patch("/api/users", (req, res) => {
 });
 
 // delete the data based on id
-app.delete("/api/users/:id", (req, res) => {
+router.delete("/delete-user/:id", (req, res) => {
   const { id } = req.params;
 
   // Find the index of the user with the provided ID
@@ -122,6 +107,4 @@ app.delete("/api/users/:id", (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log("server is running on port", port);
-});
+export default router;
